@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+open (ONE, "<$ARGV[0]");
+open (TWO, "<$ARGV[1]");
+
+while (1) {
+	$either = 1;
+
+	if ($_ = <ONE>) {
+		print;
+	} else {
+		$either = 0;
+	}
+	if ($_ = <TWO>) {
+		print;
+	} else {
+		$either = 0;
+	}
+
+	last unless $either;
+}
+
