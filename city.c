@@ -5,10 +5,8 @@
 #include <time.h>
 #include <jpeglib.h>
 
-#define MINLAT 37.593196
-#define MINLON -122.552376
-#define MAXLAT 37.883470
-#define MAXLON -122.185345
+double minlat, minlon, maxlat, maxlon;
+char *fname;
 
 struct point {
 	double lat;
@@ -35,8 +33,6 @@ void spew() {
 
 	  cinfo.err = jpeg_std_error(&jerr);
 	  jpeg_create_compress(&cinfo);
-
-	  char *fname = "out.jpg";
 
 	  if ((outfile = fopen(fname, "wb")) == NULL) {
 	    fprintf(stderr, "can't open %s\n", fname);
@@ -135,8 +131,8 @@ void spew() {
 struct point project(struct point p) {
 	struct point ret;
 
-	ret.lon = (p.lon - MINLON) * WIDTH / (MAXLON - MINLON);
-	ret.lat = (p.lat - MINLAT) * HEIGHT / (MAXLAT - MINLAT);
+	ret.lon = (p.lon - minlon) * WIDTH / (maxlon - minlon);
+	ret.lat = (p.lat - minlat) * HEIGHT / (maxlat - minlat);
 
 	// ret.lon /= M_PI;
 
@@ -154,6 +150,17 @@ void chomp(char *s) {
 int main(int argc, char **argv) {
 	char s[2000];
 	int seq = 0;
+
+	if (argc < 6) {
+		fprintf(stderr, "Usage: a.out minlat minlon maxlat maxlon file.jpg\n");
+		exit(EXIT_FAILURE);
+	}
+
+	minlat = atof(argv[1]);
+	minlon = atof(argv[2]);
+	maxlat = atof(argv[3]);
+	maxlon = atof(argv[4]);
+	fname = argv[5];
 
 	int oseq2 = 0;
 	while (fgets(s, 2000, stdin)) {
@@ -235,15 +242,15 @@ int main(int argc, char **argv) {
 		int xx, yy;
 		int xa = x, ya = y;
 
+		unsigned char *array = red;
+		if (tweet) {
+			array = blue;
+		}
+
 		for (xx = xa - 1; xx <= xa + 0; xx++) {
 			for (yy = ya - 1; yy <= ya + 0; yy++) {
 				x = xx;
 				y = yy;
-
-				unsigned char *array = red;
-				if (tweet) {
-					array = blue;
-				}
 
 				int i;
 				int tseq = seq2;
